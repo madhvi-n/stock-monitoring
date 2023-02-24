@@ -30,6 +30,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY  = get_env_variable('SECRET_KEY')
 
+# CSV URLS
+STORE_STATUS_CSV_URL = os.path.join(BASE_DIR, 'data/store_status.csv')
+STORE_TIMEZONES_CSV_URL = os.path.join(BASE_DIR, 'data/store_timezones.csv')
+BUSINESS_HOURS_CSV_URL = os.path.join(BASE_DIR, 'data/business_hours.csv')
+CACHE_PREFIX = 'stores_'
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -104,10 +110,25 @@ WSGI_APPLICATION = 'store_monitoring.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'stores',
+        'USER': 'postgres',
+        'PASSWORD': '123456',
     }
 }
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+        "KEY_PREFIX": CACHE_PREFIX
+    }
+}
+
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
@@ -157,25 +178,15 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
 
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
-CORS_REPLACE_HTTPS_REFERER = True
-CORS_ORIGIN_ALLOW_ALL = False
-CORS_ALLOW_CREDENTIALS = True
-CORS_PREFLIGHT_MAX_AGE = 86400
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8000",
-    "http://localhost:4200",
-]
-
 
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+# CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 CELERY_RESULT_BACKEND = 'db+sqlite:///db.sqlite3'
 CELERY_BEAT_SCHEDULE = {
     'update-stores-from-csv': {
