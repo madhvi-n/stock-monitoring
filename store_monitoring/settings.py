@@ -34,7 +34,12 @@ SECRET_KEY  = get_env_variable('SECRET_KEY')
 STORE_STATUS_CSV_URL = os.path.join(BASE_DIR, 'data/store_status.csv')
 STORE_TIMEZONES_CSV_URL = os.path.join(BASE_DIR, 'data/store_timezones.csv')
 BUSINESS_HOURS_CSV_URL = os.path.join(BASE_DIR, 'data/business_hours.csv')
+
+# Cache prefix
 CACHE_PREFIX = 'stores_'
+
+# Logs directory
+LOGS_DIRECTORY = os.path.join(BASE_DIR, 'logs')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -55,13 +60,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.sitemaps',
-    'allauth',
-    'allauth.account',
+    'django_extensions',
     'rest_framework',
-    'rest_framework.authtoken',
     'rest_auth',
     'rest_auth.registration',
-    'corsheaders',
     #apps
     'stores',
     'core'
@@ -74,7 +76,6 @@ REST_FRAMEWORK = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -132,7 +133,6 @@ CACHES = {
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
 )
 
 

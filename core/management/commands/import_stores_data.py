@@ -21,7 +21,6 @@ class Command(BaseCommand):
                         timezone_str=row['timezone_str']
                     )
                     data.append(store)
-
                 try:
                     with transaction.atomic():
                         Store.objects.bulk_create(data)

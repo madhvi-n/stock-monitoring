@@ -14,7 +14,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             csv_file = settings.BUSINESS_HOURS_CSV_URL
-
+            
             # Load Store data from CSV
             data = []
             with open(csv_file, 'r') as hours_data:
@@ -23,24 +23,16 @@ class Command(BaseCommand):
                     store, created = Store.objects.get_or_create(
                         store_id=row['store_id']
                     )
-                    if BusinessHour.objects.filter(
+                    business_hour = BusinessHour(
                         store=store,
                         day_of_week=row['day'],
                         start_time_local=row['start_time_local'],
-                        end_time_local=row['end_time_local']).exists():
-                        pass
-                    else:
-                        business_hour = BusinessHour(
-                            store=store,
-                            day_of_week=row['day'],
-                            start_time_local=row['start_time_local'],
-                            end_time_local=row['end_time_local']
-                        )
-                        data.append(business_hour)
-
+                        end_time_local=row['end_time_local']
+                    )
+                    data.append(business_hour)
                 try:
                     with transaction.atomic():
-                        BusinessHour.objects.bulk_create(data, ignore_conflicts=False)
+                        BusinessHour.objects.bulk_create(data, ignore_conflicts=True)
                 except IntegrityError as e:
                     # Handle the integrity error if needed
                     pass

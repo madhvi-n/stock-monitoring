@@ -1,5 +1,8 @@
 from django.db import models
 from django.utils import timezone
+import pytz
+from datetime import datetime
+from django.db.models import ExpressionWrapper, F, Func, Value
 
 
 class TimeStampedModel(models.Model):
@@ -39,6 +42,7 @@ class BusinessHour(TimeStampedModel):
     end_time_local = models.TimeField()
 
     class Meta:
+        unique_together = ('store', 'day_of_week')
         verbose_name = "Business Hour"
         verbose_name_plural = "Business Hours"
 
@@ -58,10 +62,18 @@ class StoreStatus(TimeStampedModel):
         on_delete=models.CASCADE,
         related_name='status_updates'
     )
-    timestamp_utc = models.DateTimeField()
+    timestamp_utc = models.DateTimeField(db_index=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES)
 
+    @classmethod
+    def convert_from_utc(cls, timestamp_utc):
+        tz = pytz.timezone(cls.store.timezone_str)
+        local_timestamp = timestamp_utc.astimezone(tz)
+        return local_timestamp
+
+
     class Meta:
+        unique_together = ('store', 'timestamp_utc')
         verbose_name = "Store Status"
         verbose_name_plural = "Store Statuses"
 
