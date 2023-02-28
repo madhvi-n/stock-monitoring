@@ -43,7 +43,6 @@ def generate_store_report(store_id: str):
         last_hour = now - timedelta(hours=1)
         last_day = now - timedelta(days=1)
         last_week = now - timedelta(days=7)
-        print(last_hour.date(), last_day.date())
 
         try:
             day_of_week = last_day.weekday()
