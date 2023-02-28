@@ -3,12 +3,14 @@ from rest_framework.response import Response
 
 from .mixins import (
     PaginatedResponseMixin,
+    MultiSerializerViewSetMixin,
     DestroyModelMixin,
 )
 
 class BaseReadOnlyViewSet(
         mixins.ListModelMixin,
         mixins.RetrieveModelMixin,
+        MultiSerializerViewSetMixin,
         PaginatedResponseMixin,
         viewsets.GenericViewSet):
     pass

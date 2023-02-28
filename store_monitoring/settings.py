@@ -23,31 +23,32 @@ def get_env_variable(var_name):
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY  = get_env_variable('SECRET_KEY')
 
-# CSV URLS
-STORE_STATUS_CSV_URL = os.path.join(BASE_DIR, 'data/store_status.csv')
-STORE_TIMEZONES_CSV_URL = os.path.join(BASE_DIR, 'data/store_timezones.csv')
-BUSINESS_HOURS_CSV_URL = os.path.join(BASE_DIR, 'data/business_hours.csv')
 
 # Cache prefix
 CACHE_PREFIX = 'stores_'
 
-# Logs directory
+# Path configuration
+CSV_DIRECTORY = os.path.join(BASE_DIR, 'data')
 LOGS_DIRECTORY = os.path.join(BASE_DIR, 'logs')
+
+# CSV URLS
+STORE_STATUS_CSV_URL = os.path.join(CSV_DIRECTORY, 'test_status.csv')
+STORE_TIMEZONES_CSV_URL = os.path.join(CSV_DIRECTORY, 'store_timezones.csv')
+BUSINESS_HOURS_CSV_URL = os.path.join(CSV_DIRECTORY, 'business_hours.csv')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+
 ALLOWED_HOSTS = [
     u'localhost'
 ]
-
 
 # Application definition
 
@@ -61,17 +62,17 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.sitemaps',
     'django_extensions',
+    'allauth',
+    'allauth.account',
+    # 'allauth.socialaccount',
     'rest_framework',
     'rest_auth',
     'rest_auth.registration',
     #apps
+    'core',
     'stores',
-    'core'
 ]
 
-REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
-}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

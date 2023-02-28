@@ -1,8 +1,7 @@
 from django.db import models
 from django.utils import timezone
+from datetime import datetime, timedelta
 import pytz
-from datetime import datetime
-from django.db.models import ExpressionWrapper, F, Func, Value
 
 
 class TimeStampedModel(models.Model):
@@ -19,6 +18,31 @@ class Store(TimeStampedModel):
 
     def __str__(self):
         return f"{self.store_id}"
+
+    def get_business_hours_by_day(self):
+        tz = pytz.timezone(self.timezone_str)
+        business_hours_by_day = dict()
+        for day_of_week, day_name in BusinessHour.DAY_CHOICES:
+            # Get start and end times for this day
+            start_time_local = datetime.min.time()
+            end_time_local = datetime.max.time()
+            now = datetime.now(tz) - timedelta(days=32, hours=12)
+            last_day = now - timedelta(days=1)
+
+            business_hours = self.business_hours.filter(day_of_week=day_of_week)
+            if business_hours.exists():
+                start_time_local = business_hours.first().start_time_local
+                end_time_local = business_hours.first().end_time_local
+
+            # Convert start and end times to datetime objects in store's timezone
+            start_time_local_dt = datetime.combine(last_day.date(), start_time_local)
+            start_time_tz = tz.localize(start_time_local_dt)
+            end_time_local_dt = datetime.combine(last_day.date(), end_time_local)
+            end_time_tz = tz.localize(end_time_local_dt)
+
+            # Add intervals to dict
+            business_hours_by_day[day_of_week] = [start_time_tz, end_time_tz]
+        return business_hours_by_day
 
 
 class BusinessHour(TimeStampedModel):
@@ -87,12 +111,12 @@ class StoreReport(TimeStampedModel):
         on_delete=models.CASCADE,
         related_name="reports"
     )
-    uptime_last_hour = models.PositiveIntegerField(default=0)
-    uptime_last_day = models.PositiveIntegerField(default=0)
-    uptime_last_week = models.PositiveIntegerField(default=0)
-    downtime_last_hour = models.PositiveIntegerField(default=0)
-    downtime_last_day = models.PositiveIntegerField(default=0)
-    downtime_last_week = models.PositiveIntegerField(default=0)
+    uptime_last_hour = models.FloatField()
+    uptime_last_day = models.FloatField()
+    uptime_last_week = models.FloatField()
+    downtime_last_hour = models.FloatField()
+    downtime_last_day = models.FloatField()
+    downtime_last_week = models.FloatField()
 
     class Meta:
         verbose_name = "Store Report"
