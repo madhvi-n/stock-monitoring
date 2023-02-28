@@ -95,46 +95,45 @@ def generate_store_report(store_id: str):
                 Q(timestamp_utc__range=(last_day_utc, now_utc)) &
                 Q(timestamp_utc__range=(start_time_last_day_utc, end_time_last_day_utc))
             ).values_list('timestamp_utc', 'status').order_by('timestamp_utc')
-            print(last_day_statuses, "last_day_statuses")
 
             if last_day_statuses.exists():
                 uptime_last_day = calculate_uptime(last_day_statuses, start_time_last_day_utc, end_time_last_day_utc)
-                downtime_last_day = (end_time_last_day_utc - start_time_last_day_utc).total_seconds() - uptime_last_day
                 uptime_last_day /= 3600
-                downtime_last_day /= 3600
+                total_hours = (end_time_last_day_utc - start_time_last_day_utc).total_seconds() / 3600
+                downtime_last_day = total_hours - uptime_last_day
 
             print(f"Uptime last day: {uptime_last_day} hrs")
-            print(f"Downtime last day: {uptime_last_day} hrs")
+            print(f"Downtime last day: {downtime_last_day} hrs")
 
             # Calculate uptime last week in days
-            last_week_statuses = store.status_updates.filter(
-                Q(timestamp_utc__range=(last_week_utc, now_utc)) &
-                Q(timestamp_utc__range=(start_time_last_day_utc, end_time_last_day_utc)) # this will be different for each business day
-            ).values_list('timestamp_utc', 'status').order_by('timestamp_utc')
-            print(last_week_statuses, "last_week_statuses")
+            # last_week_statuses = store.status_updates.filter(
+            #     Q(timestamp_utc__range=(last_week_utc, now_utc)) &
+            #     Q(timestamp_utc__range=(start_time_last_day_utc, end_time_last_day_utc))
+            # ).values_list('timestamp_utc', 'status').order_by('timestamp_utc')
+            # print(last_week_statuses, "last_week_statuses")
 
 
-            business_weekly_hours_in_seconds = 0
-            total_days = len(business_hours.keys())
-            for day_of_week, (interval_start, interval_end)  in business_hours.items():
-                time_difference = (interval_end - interval_start).total_seconds()
-                business_weekly_hours_in_seconds += time_difference
-
+            # business_weekly_hours_in_seconds = 0
+            # total_days = len(business_hours.keys())
+            # for day_of_week, (interval_start, interval_end)  in business_hours.items():
+            #     time_difference = (interval_end - interval_start).total_seconds()
+            #     business_weekly_hours_in_seconds += time_difference
+            #
             uptime_last_week = 0
             downtime_last_week = 0
-            weekly_uptime_in_seconds = 0
+            # weekly_uptime_in_seconds = 0
 
-            for weekly_start_time, weekly_end_time in business_hours.values():
+            # for weekly_start_time, weekly_end_time in business_hours.values():
                 # fetch statuses by day and weekly_start_time and weekly_end_time
                 # weekly_uptime_in_seconds += calculate_uptime per day
                 # downtime = business_weekly_hours_in_seconds - uptime
 
-                if weekly_uptime_in_seconds:
+                # if weekly_uptime_in_seconds:
                     # find downtime from total uptime convert uptime in days
-                    uptime_last_week = weekly_uptime_in_seconds / 86400
-                    downtime_last_week = (business_weekly_hours_in_seconds - weekly_uptime_in_seconds) / 86400
-            print(f"Uptime last week: {uptime_last_week} days")
-            print(f"Downtime last week: {uptime_last_week} days")
+            #         uptime_last_week = weekly_uptime_in_seconds / 86400
+            #         downtime_last_week = (business_weekly_hours_in_seconds - weekly_uptime_in_seconds) / 86400
+            # print(f"Uptime last week: {uptime_last_week} days")
+            # print(f"Downtime last week: {uptime_last_week} days")
 
             report = StoreReport.objects.create(
                 store=store,
