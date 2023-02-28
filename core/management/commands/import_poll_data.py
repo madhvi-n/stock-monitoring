@@ -15,35 +15,27 @@ class Command(BaseCommand):
             csv_file = settings.STORE_STATUS_CSV_URL
 
             # Load Store data from CSV
-            # data = []
             with open(csv_file, 'r') as status_data:
                 reader = csv.DictReader(status_data)
-
+                data = []
                 for row in reader:
                     datetime_obj = datetime.strptime(row['timestamp_utc'][:-4], '%Y-%m-%d %H:%M:%S.%f')
                     datetime_obj_utc = pytz.utc.localize(datetime_obj)
 
-                    try:
-                        store = Store.objects.get(store_id=row['store_id'])
-                    except Store.DoesNotExist:
-                        continue
-
+                    store = Store.objects.get(store_id=row['store_id'])
                     if store is not None:
-                        store_status, created = StoreStatus.objects.get_or_create(
+                        store_status = StoreStatus(
                             store=store,
                             status=row['status'],
                             timestamp_utc=datetime_obj_utc
                         )
-                        if created:
-                            print(f"Poll data created for store: {store.store_id}")
-                        # data.append(store_status)
-
-                # try:
-                #     with transaction.atomic():
-                #         StoreStatus.objects.bulk_create(data)
-                #         print(f"Poll data inserted in database successfully")
-                # except IntegrityError as e:
-                #     pass
+                        data.append(store_status)
+                try:
+                    with transaction.atomic():
+                        created_objects = StoreStatus.objects.bulk_create(data)
+                        print(f'Poll data inserted in database successfully at {datetime.now()}. \n {len(created_objects)} objects were created successfully.')
+                except IntegrityError as e:
+                    pass
 
         except FileNotFoundError:
             print(f"Error: file '{csv_file}' not found.")
