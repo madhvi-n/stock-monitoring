@@ -51,12 +51,12 @@ def insert_poll_data_in_database():
         print(f'Poll data inserted in database successfully at {datetime.now()}')
 
 
-@shared_task
-def create_status_reports():
-    """ Generates Store Status Reports """
-    stores = Store.objects.all()
-    for store in stores:
-        generate_store_report(store.store_id)
+# @shared_task
+# def create_status_reports():
+#     """ Generates Store Status Reports """
+#     stores = Store.objects.all()
+#     for store in stores:
+#         generate_store_report(store.store_id)
 
 
 # Chain the tasks and run
