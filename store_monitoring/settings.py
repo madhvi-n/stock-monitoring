@@ -38,7 +38,7 @@ CSV_DIRECTORY = os.path.join(BASE_DIR, 'data')
 LOGS_DIRECTORY = os.path.join(BASE_DIR, 'logs')
 
 # CSV URLS
-STORE_STATUS_CSV_URL = os.path.join(CSV_DIRECTORY, 'test_status.csv')
+STORE_STATUS_CSV_URL = os.path.join(CSV_DIRECTORY, 'store_status.csv')
 STORE_TIMEZONES_CSV_URL = os.path.join(CSV_DIRECTORY, 'store_timezones.csv')
 BUSINESS_HOURS_CSV_URL = os.path.join(CSV_DIRECTORY, 'business_hours.csv')
 
