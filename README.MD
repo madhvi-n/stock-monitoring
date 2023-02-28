@@ -25,14 +25,11 @@ The task is to build backend APIs that will help store owners achieve this goal.
 ### Output
 - We want to output a report to the user that has the following schema
 `(store_id, uptime_last_hour, uptime_last_day, update_last_week, downtime_last_hour, downtime_last_day, downtime_last_week)`
-  - Uptime and downtime should only include observations within business hours.
-  - You need to extrapolate uptime and downtime based on the periodic polls we have ingested, to the entire time interval. eg, business hours for a store are 9 AM to 12 PM on Monday, we only have 2 observations for this store on a particular date (Monday) in our data at 10:14 AM and 11:15 AM
-  - we need to fill the entire business hours interval with uptime and downtime from these 2 observations based on some sane interpolation logic
+
 
 
 ### API Requirements
-1. `/trigger_report` endpoint that will trigger report generation from the data provided (stored in DB)
-Output - `report_id` (random string)
+1. `/trigger_report` endpoint that will trigger report generation from the data provided
 
 2. `report_id` will be used for polling the status of report completion
 /`get_report` endpoint that will return the status of the report or the csv
@@ -90,6 +87,12 @@ Access python shell
 ```
 python manage.py shell
 ```
+
+### APIs
+
+- `/stores/` returns a list of stores
+- `/stores/store_id/trigger_report/` generates report for the store at that instant
+- `stores/store_id/reports/report_id/` returns the report instance
 
 
 ### Generating data using management commands
