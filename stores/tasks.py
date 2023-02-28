@@ -60,5 +60,5 @@ def create_status_reports():
 
 
 # Chain the tasks and run
-task_chain = chain(insert_poll_data_in_database.si(), create_status_reports.si())
-task_chain()
+# task_chain = chain(insert_poll_data_in_database.si(), create_status_reports.si())
+# task_chain()

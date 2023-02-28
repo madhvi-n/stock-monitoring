@@ -9,7 +9,7 @@ from django.db import models
 from django.utils.timezone import timezone, datetime, timedelta
 
 
-def calculate_uptime(store_tz, statuses, start_time, end_time):
+def calculate_uptime(statuses, start_time, end_time):
     """Returns uptime (in seconds) for given statuses and time intervals"""
     try:
         prev_timestamp = start_time
@@ -48,24 +48,26 @@ def generate_store_report(store_id: str):
             return
 
         store_tz = pytz.timezone(store.timezone_str)
-        now = datetime.now(store_tz)
-        last_hour = now - timedelta(hours=1)
-        last_day = now - timedelta(days=1)
-        last_week = now - timedelta(days=7)
+        now_utc = datetime.now(pytz.utc)
+        last_hour_utc = now_utc - timedelta(hours=1)
+        last_day_utc = now_utc - timedelta(days=1)
+        last_week_utc = now_utc - timedelta(days=7)
 
         try:
-            day_of_week = last_day.weekday()
             start_time_local = datetime.min.time()
             end_time_local = datetime.max.time()
 
             business_hours = store.get_business_hours_by_day()
 
-            business_hours_last_hour = business_hours[last_hour.astimezone(store_tz).weekday()]
-            start_time_last_hour, end_time_last_hour = [datetime.combine(last_hour.astimezone(store_tz).date(), t) for t in business_hours_last_hour]
+            business_hours_last_hour = business_hours[last_hour_utc.weekday()]
+            start_time_last_hour_utc, end_time_last_hour_utc = [datetime.combine(last_hour_utc.date(), t, tzinfo=pytz.utc) for t in business_hours_last_hour]
+            start_time_last_hour_local = start_time_last_hour_utc.astimezone(store_tz)
+            end_time_last_hour_local = end_time_last_hour_utc.astimezone(store_tz)
 
-            business_hour_last_day = business_hours[last_day.astimezone(store_tz).weekday()]
-            start_time_last_day, end_time_last_day = [datetime.combine(last_day.astimezone(store_tz).date(), t) for t in business_hour_last_day]
-
+            business_hour_last_day = business_hours[last_day_utc.weekday()]
+            start_time_last_day_utc, end_time_last_day_utc = [datetime.combine(last_day_utc.date(), t, tzinfo=pytz.utc) for t in business_hour_last_day]
+            start_time_last_day_local = start_time_last_day_utc.astimezone(store_tz)
+            end_time_last_day_local = end_time_last_day_utc.astimezone(store_tz)
 
             # Query the store status table to get the status updates for the
             # past hour, day and week strictly during business hours
@@ -73,15 +75,13 @@ def generate_store_report(store_id: str):
             # Calculate uptime last hour in minutes
             uptime_last_hour = 0
             downtime_last_hour = 0
-            utc_start_time_last_hour = start_time_last_hour.astimezone(pytz.utc)
-            utc_end_time_last_hour = end_time_last_hour.astimezone(pytz.utc)
             last_hour_statuses = store.status_updates.filter(
-                Q(timestamp_utc__range=(last_hour.astimezone(pytz.utc), now.astimezone(pytz.utc))) &
-                Q(timestamp_utc__range=(utc_start_time_last_hour, utc_end_time_last_hour))
+                Q(timestamp_utc__range=(last_hour_utc, now_utc)) &
+                Q(timestamp_utc__range=(start_time_last_hour_utc, end_time_last_hour_utc))
             ).values_list('timestamp_utc', 'status').order_by('timestamp_utc')
 
             if last_hour_statuses.exists():
-                uptime_last_hour = calculate_uptime(store_tz, last_hour_statuses, start_time_last_hour, end_time_last_hour)
+                uptime_last_hour = calculate_uptime(last_hour_statuses, start_time_last_hour_utc, end_time_last_hour_utc)
                 uptime_last_hour /= 60
                 downtime_last_hour = 60 - uptime_last_hour
 
@@ -91,17 +91,15 @@ def generate_store_report(store_id: str):
             # Calculate uptime last day in hours
             uptime_last_day = 0
             downtime_last_day = 0
-            utc_start_time_last_day = start_time_last_day.astimezone(pytz.utc)
-            utc_end_time_last_day = end_time_last_day.astimezone(pytz.utc)
             last_day_statuses = store.status_updates.filter(
-                Q(timestamp_utc__range=(last_day, now)) &
-                Q(timestamp_utc__range=(utc_start_time_last_day, utc_end_time_last_day))
+                Q(timestamp_utc__range=(last_day_utc, now_utc)) &
+                Q(timestamp_utc__range=(start_time_last_day_utc, end_time_last_day_utc))
             ).values_list('timestamp_utc', 'status').order_by('timestamp_utc')
             print(last_day_statuses, "last_day_statuses")
 
             if last_day_statuses.exists():
-                uptime_last_day = calculate_uptime(store_tz, last_day_statuses, start_time_last_day, end_time_last_day)
-                downtime_last_day = (end_time_last_day - start_time_last_day).total_seconds() - uptime_last_day
+                uptime_last_day = calculate_uptime(last_day_statuses, start_time_last_day_utc, end_time_last_day_utc)
+                downtime_last_day = (end_time_last_day_utc - start_time_last_day_utc).total_seconds() - uptime_last_day
                 uptime_last_day /= 3600
                 downtime_last_day /= 3600
 
@@ -110,8 +108,8 @@ def generate_store_report(store_id: str):
 
             # Calculate uptime last week in days
             last_week_statuses = store.status_updates.filter(
-                Q(timestamp_utc__range=(last_week, now)) &
-                Q(timestamp_utc__range=(start_time_last_day, end_time_last_day))
+                Q(timestamp_utc__range=(last_week_utc, now_utc)) &
+                Q(timestamp_utc__range=(start_time_last_day_utc, end_time_last_day_utc)) # this will be different for each business day
             ).values_list('timestamp_utc', 'status').order_by('timestamp_utc')
             print(last_week_statuses, "last_week_statuses")
 
