@@ -8,7 +8,7 @@ from django.db.models import Q, F
 from stores.models import Store, BusinessHour, StoreStatus
 from stores.services import generate_store_report
 
-from celery import chain
+from celery import chain, shared_task
 import csv
 import pytz
 
