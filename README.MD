@@ -8,6 +8,8 @@ A store monitoring project using Django which monitors store status through peri
     - Python 3.8+
     - virtualenv
     - WSL
+    - Redis
+    - Celery
 
 # Installation
 
@@ -91,5 +93,9 @@ By implementing these steps, we can create a distributed and scalable system tha
 
 
 #### Celery commands
-`celery -A stores worker -l info`
-`celery -A stores beat -l info`
+- `celery -A stores worker -l info -E`
+
+- `celery -A stores beat -l info`
+
+We use Redis broker with Celery so make sure you have redis installed and running
+before running celery commands
