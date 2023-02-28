@@ -190,8 +190,8 @@ CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 # CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 CELERY_RESULT_BACKEND = 'db+sqlite:///db.sqlite3'
 CELERY_BEAT_SCHEDULE = {
-    'update-stores-from-csv': {
-        'task': 'stores.tasks.update_stores_from_csv',
-        'schedule': 300.0,  # Run every 5 minutes
+    'insert-poll-data-in-database': {
+        'task': 'stores.tasks.insert_poll_data_in_database',
+        'schedule': 3600.0,  # Run every 60 minutes
     },
 }
