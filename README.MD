@@ -1,4 +1,7 @@
+
 # Store monitoring project
+
+[![Django CI](https://github.com/madhvi-n/store-monitoring/actions/workflows/django.yml/badge.svg)](https://github.com/madhvi-n/store-monitoring/actions/workflows/django.yml)
 
 A store monitoring project using Django which monitors store status through periodic ingestion of poll data into a database, with the objective of tracking store uptime and downtime on hourly, daily, and weekly basis.
 
