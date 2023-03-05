@@ -21,8 +21,7 @@ class Command(BaseCommand):
                 for row in reader:
                     datetime_obj = datetime.strptime(row['timestamp_utc'][:-4], '%Y-%m-%d %H:%M:%S.%f')
                     datetime_obj_utc = pytz.utc.localize(datetime_obj)
-
-                    store = Store.objects.get(store_id=row['store_id'])
+                    store = Store.objects.filter(store_id=row['store_id']).last()
                     if store is not None:
                         store_status = StoreStatus(
                             store=store,
