@@ -61,11 +61,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.sitemaps',
-    'django_extensions',
+    # 'django_extensions',
     'allauth',
     'allauth.account',
     # 'allauth.socialaccount',
     'rest_framework',
+    'rest_framework.authtoken',
     'rest_auth',
     'rest_auth.registration',
     #apps

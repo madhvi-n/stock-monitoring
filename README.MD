@@ -76,24 +76,11 @@ python.manage.py generate_store_report # can be used to generate store reports
 ### Running celery tasks
 - Instead of generating reports directly from api endpoints, it could be more efficient to use Celery to create reports once poll data has been ingested into the database. This can be achieved by chaining tasks in Celery so that report generation only occurs after poll data has been successfully inserted.
 
+- Since poll data is ingested in database hourly, we can set the cache to expire hourly as well
+
 - To optimize user performance and reduce latency, reports can be cached. When the `trigger_report` API is called, the ID of the last generated report can be fetched and returned. Alternatively, cached data can be used to return the most recent report generated for this API.
 
 - Since reports will be generated periodically every hour, a Celery task can be enabled to remove old reports. This will help to keep the system running smoothly and prevent it from becoming cluttered with outdated reports.
-
-
-### To make the system distributed and scalable, we could consider the following steps:
-- Use a distributed message broker: Instead of relying on a single server to handle all the tasks, we can use a distributed message broker such as RabbitMQ or Apache Kafka. This will help to distribute the load across multiple servers, making the system more scalable.
-
-- Use multiple worker nodes: Instead of relying on a single worker node to process all the tasks, we can use multiple worker nodes to handle the tasks in parallel. This will help to improve the system's throughput and make it more scalable.
-
-- Use a load balancer: To distribute the load across multiple worker nodes, we can use a load balancer such as NGINX or HAProxy. The load balancer will help to distribute the tasks evenly across the worker nodes, ensuring that no single node becomes overloaded.
-
- - Use a distributed caching solution: To improve the system's performance and reduce latency, we can use a distributed caching solution such as Redis. This will help to reduce the number of requests that need to hit the database, improving the system's overall performance.
-
-- Monitor and scale the system: To ensure that the system is running smoothly, we need to monitor its performance and scale it up or down as needed. This can be achieved using tools such as Prometheus and Kubernetes, which can automatically scale the system based on predefined metrics such as CPU usage or request rate.
-
-By implementing these steps, we can create a distributed and scalable system that can handle a large number of requests and process them efficiently
-
 
 #### Celery commands
 - `celery -A stores worker -l info -E`
